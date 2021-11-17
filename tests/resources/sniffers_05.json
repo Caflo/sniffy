@@ -1,0 +1,16 @@
+[
+    {
+        "active": false,
+        "id": 1,
+        "iface": "Realtek RTL8821CE 802.11ac PCIe Adapter",
+        "proc_id": null,
+        "schedule": null
+    },
+    {
+        "active": false,
+        "id": 2,
+        "iface": "Realtek RTL8821CE 802.11ac PCIe Adapter",
+        "proc_id": null,
+        "schedule": null
+    }
+]

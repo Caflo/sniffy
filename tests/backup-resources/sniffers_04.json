@@ -1,0 +1,26 @@
+[
+    {
+        "active": false,
+        "id": 1,
+        "iface": "iface-test-1",
+        "proc_id": null,
+        "schedule": null
+    },
+    {
+        "active": true,
+        "id": 2,
+        "iface": "iface-test-2",
+        "proc_id": 678,
+        "schedule": {
+            "mode": "interval",
+            "interval": 60
+        }
+    },
+    {
+        "active": false,
+        "id": 3,
+        "iface": "iface-test-3",
+        "proc_id": null,
+        "schedule": null
+    }
+]
