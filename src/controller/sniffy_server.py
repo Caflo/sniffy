@@ -151,7 +151,10 @@ class RequestHandlerServer:
             self.__update_sniffer_task(sniffer_task)
             self.save_sniffers()
             self.logger.info(f"Updated status of sniffer with ID = {sniffer_id}")
-            conn.sendall(f"Sniffer {sniffer_id} started successfully".encode())
+
+            msg = f"Sniffer {sniffer_id} started successfully"
+            l = struct.pack('!i', len(msg))
+            conn.sendall(l+msg.encode())
         except Exception as ex:
             self.logger.info(f"Catched {type(ex).__name__}, continuing")
             message = traceback.format_exc()
@@ -220,18 +223,33 @@ class RequestHandlerServer:
             conn.close()
  
     def start_all(self, conn):
-        # TODO check active threads before starting
-        for st in self.sniffer_tasks:
-            self.start_sniffer(st.id, conn)
+        self.__check_active_threads()
+#        n = len(self.__get_inactive_sniffer_tasks()) # TODO test this function
+        inast = self.__get_inactive_sniffer_tasks()
+        
+        try:
+            val = struct.pack('!i', len(inast))
+            conn.sendall(val)
+            for st in inast:
+                self.start_sniffer(st.id, conn)
+        except Exception as ex:
+            self.logger.info(f"Catched {type(ex).__name__}, continuing")
+            message = traceback.format_exc()
+            print(message)
+        finally:
+            self.logger.info(f"Closing client socket...")
+            conn.close()
+ 
 
     def stop_all(self, conn):
-        # TODO check non-active threads before stopping
-        n = len(self.__get_active_sniffer_tasks()) # TODO test this function
+        self.__check_active_threads()
+#        n = len(self.__get_active_sniffer_tasks()) # TODO test this function
+        ast = self.__get_active_sniffer_tasks()
 
         try:
-            val = struct.pack('!i', n)
+            val = struct.pack('!i', len(ast))
             conn.sendall(val)
-            for st in self.sniffer_tasks:
+            for st in ast:
                 self.stop_sniffer(st.id, conn)
         except Exception as ex:
             self.logger.info(f"Catched {type(ex).__name__}, continuing")
@@ -414,12 +432,21 @@ class RequestHandlerServer:
     
     def __get_active_sniffer_tasks(self):
         active_sniffer_tasks = []
-        self.logger.info(f"Getting inactive sniffer tasks...") 
+        self.logger.info(f"Getting active sniffer tasks...") 
         for sniffer_task in self.sniffer_tasks:
             for entry in self.thread_handler.thread_queue:
                 if entry['task_id'] == sniffer_task.id and entry['thread'].thread.is_alive():
                     active_sniffer_tasks.append(sniffer_task)
         return active_sniffer_tasks
+
+    def __get_inactive_sniffer_tasks(self):
+        inactive_sniffer_tasks = []
+        self.logger.info(f"Getting inactive sniffer tasks...") 
+        for sniffer_task in self.sniffer_tasks:
+            if sniffer_task.active == False:
+                inactive_sniffer_tasks.append(sniffer_task)
+        return inactive_sniffer_tasks
+
 
     def switch_action(self, args, conn):
         if args.cmd == 'stop-server':

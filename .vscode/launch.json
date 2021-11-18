@@ -11,9 +11,9 @@
 //            "program": "${file}", // debug current file
 //            "module": "tests.json_tests", // module test
             "module": "src.sniffy", // module sniffy
-//            "args": ["init-server"],
+            "args": ["init-server"],
 //            "args": ["get-all"],
-            "args": ["stop-all"],
+//            "args": ["stop-all"],
 //            "args": ["stop", "1"],
             "console": "integratedTerminal"
         }

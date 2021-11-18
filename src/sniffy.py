@@ -100,8 +100,19 @@ if __name__ == "__main__":
     s.sendall(s_data)
 
     # receive results
-    if args.cmd == 'start-all': # prepare to receive multiple pcap files after stopping 
-      pass
+    if args.cmd == 'start-all':
+      num_msg = struct.unpack('!i', s.recv(INT_SIZE))[0] 
+      for i in range(num_msg):
+        len = struct.unpack('!i', s.recv(INT_SIZE))[0] 
+        msg = s.recv(len).decode() # receive status msg
+        print(msg)
+
+
+    if args.cmd == 'start': 
+      len = struct.unpack('!i', s.recv(INT_SIZE))[0] 
+      msg = s.recv(len).decode() # receive status msg
+      print(msg)
+
 
     if args.cmd == 'stop-all': # prepare to receive multiple pcap files after stopping 
         num_pcap = struct.unpack('!i', s.recv(INT_SIZE))[0] # receive number of pcap to get
